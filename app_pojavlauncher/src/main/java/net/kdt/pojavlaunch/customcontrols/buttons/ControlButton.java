@@ -8,6 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -43,6 +45,17 @@ public class ControlButton extends TextView implements ControlInterface {
     private boolean mHasBitmap;
 
     protected boolean mIsToggled = false;
+
+    private boolean mShowingFps = false;
+    private final Handler mFpsHandler = new Handler(Looper.getMainLooper());
+    private final Runnable mFpsUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!mShowingFps) return;
+            setText("FPS: " + GameActivity.getCurrentFps());
+            mFpsHandler.postDelayed(this, 1000);
+        }
+    };
 
     public ControlButton(ControlLayout layout, ControlData properties) {
         super(layout.getContext());
@@ -259,7 +272,27 @@ public class ControlButton extends TextView implements ControlInterface {
             case ControlData.SPECIALBTN_MENU:
                 mControlLayout.notifyAppMenu();
                 break;
+
+            case ControlData.SPECIALBTN_FPS:
+                if (isDown) toggleFpsDisplay();
+                break;
         }
+    }
+
+    private void toggleFpsDisplay() {
+        mShowingFps = !mShowingFps;
+        if (mShowingFps) {
+            mFpsHandler.post(mFpsUpdateRunnable);
+        } else {
+            mFpsHandler.removeCallbacks(mFpsUpdateRunnable);
+            setText(mProperties.name);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mFpsHandler.removeCallbacks(mFpsUpdateRunnable);
     }
 
     @Override

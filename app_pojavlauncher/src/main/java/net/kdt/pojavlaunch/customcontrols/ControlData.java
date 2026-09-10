@@ -31,6 +31,7 @@ public class ControlData {
     public static final int SPECIALBTN_SCROLLDOWN = -8;
     public static final int SPECIALBTN_MENU = -9;
     public static final int SPECIALBTN_KEYBOARDPAN = -10;
+    public static final int SPECIALBTN_FPS = -11;
 
     private static ControlData[] SPECIAL_BUTTONS;
     private static List<String> SPECIAL_BUTTON_NAME_ARRAY;
@@ -167,7 +168,8 @@ public class ControlData {
                     new ControlData("SCROLLUP", new int[]{SPECIALBTN_SCROLLUP}, "${margin}", "${margin}"),
                     new ControlData("SCROLLDOWN", new int[]{SPECIALBTN_SCROLLDOWN}, "${margin}", "${margin}"),
                     new ControlData("MENU", new int[]{SPECIALBTN_MENU}, "${margin}", "${margin}"),
-                    new ControlData("KeyboardPan", new int[]{SPECIALBTN_KEYBOARDPAN}, "${margin}", "${margin}")
+                    new ControlData("KeyboardPan", new int[]{SPECIALBTN_KEYBOARDPAN}, "${margin}", "${margin}"),
+                    new ControlData("FPS", new int[]{SPECIALBTN_FPS}, "${margin}", "${margin}")
             };
         }
 

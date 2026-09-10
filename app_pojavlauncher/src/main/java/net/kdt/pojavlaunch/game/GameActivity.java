@@ -20,8 +20,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -90,7 +88,6 @@ import git.artdeell.mojo.R;
 public class GameActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
     public static final String INTENT_LAUNCH_VERSION = "intent_version";
     public static final String INTENT_LAUNCH_CLASSPATH = "intent_classpath";
-    private final Handler fpsHandler = new Handler(Looper.getMainLooper());
 
     public static TouchCharInput touchCharInput;
     private GameView launcherGLView;
@@ -103,9 +100,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     private ControlLayout mControlLayout;
     private HotbarView mHotbarView;
     private View mLoadingScreen;
-    private boolean getCurrentFps = false;
-    private TextView currentFpsView;
-    private JVersionList.Version currentVersion;
+    private static JVersionList.Version currentVersion;
 
     Instance instance;
     Account account;
@@ -253,7 +248,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                      case 2: dialogSendCustomKey(); break;
                      case 3: openQuickSettings(); break;
                      case 4: openCustomControls(); break;
-                     case 5: initCurrentFps(); break;
                 }
                 drawerLayout.closeDrawers();
             };
@@ -312,7 +306,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         mDrawerPullButton = findViewById(R.id.drawer_button);
         mHotbarView = findViewById(R.id.hotbar_view);
         mLoadingScreen = findViewById(R.id.main_loading_screen);
-        currentFpsView = findViewById(R.id.current_fps_view);
     }
 
     @Override
@@ -432,36 +425,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         navDrawer.setOnItemClickListener(ingameControlsEditorListener);
         mDrawerPullButton.setVisibility(View.VISIBLE);
         isInEditor = true;
-    }
-
-    private final Runnable fpsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!getCurrentFps) return;
-            int fps;
-            try {
-                fps = isSdl(currentVersion)
-                    ? SDLActivity.nativeGetAndResetFps()
-                    : GLFW.initFps();
-            } catch (Exception e) {
-                fps = 0;
-            }
-
-            currentFpsView.setText("FPS: " + fps);
-            fpsHandler.postDelayed(this, 1000);
-        }
-    };
-
-    private void initCurrentFps() {
-        if (!getCurrentFps) {
-            getCurrentFps = true;
-            currentFpsView.setVisibility(View.VISIBLE);
-            fpsHandler.post(fpsRunnable);
-        } else {
-          getCurrentFps = false;
-          fpsHandler.removeCallbacks(fpsRunnable);
-          currentFpsView.setVisibility(View.GONE);
-        }
     }
 
     private void openLogOutput() {
@@ -623,5 +586,15 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     private static boolean isSdl(JVersionList.Version version) throws Exception {
     return !DateUtils.dateBefore(DateUtils.getOriginalReleaseDate(version),2026, 7, 16);
+    }
+
+    public static int getCurrentFps() {
+        try {
+            return isSdl(currentVersion)
+                    ? SDLActivity.nativeGetAndResetFps()
+                    : GLFW.initFps();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }
