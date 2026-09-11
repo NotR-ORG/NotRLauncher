@@ -99,7 +99,7 @@ public class MainMenuFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ExtraCore.setValue(ExtraConstants.REFRESH_ACCOUNT_SPINNER, true);
-        bottomBarVisibility();
+        if (mBottomBar != null) mBottomBar.post(this::bottomBarVisibility);
     }
 
     private void bottomBarVisibility() {
